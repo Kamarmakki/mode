@@ -1,0 +1,18 @@
+{
+  "lang":"Português",
+  "login":"Entrar",
+  "register":"Registrar",
+  "email":"E-mail",
+  "password":"Senha",
+  "keyword":"Palavra-chave",
+  "analyze":"Analisar",
+  "results":"Resultados",
+  "suggested_title":"Título sugerido",
+  "meta_description":"Meta descrição",
+  "snippet":"Snippet",
+  "outline":"Esboço",
+  "nlp_keywords":"Palavras-chave NLP",
+  "featured_snippets":"Snippets em destaque",
+  "logout":"Sair",
+  "history":"Histórico"
+}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h2 class="mb-4">{{ _('analyze') }}</h2>
+        <div class="input-group input-group-lg mb-3">
+            <input id="keyword" class="form-control" placeholder="{{ _('keyword') }}...">
+            <button id="btnAnalyze" class="btn btn-primary">{{ _('analyze') }}</button>
+        </div>
+        <div id="loader" class="text-center d-none mb-3">
+            <div class="spinner-border text-primary"></div>
+        </div>
+        <div id="results" class="d-none">
+            <h4 class="mb-3">{{ _('results') }}</h4>
+            <div class="card mb-2"><div class="card-body"><strong>{{ _('suggested_title') }}:</strong> <span id="suggested_title"></span></div></div>
+            <div class="card mb-2"><div class="card-body"><strong>{{ _('meta_description') }}:</strong> <span id="meta_description"></span></div></div>
+            <div class="card mb-2"><div class="card-body"><strong>{{ _('snippet') }}:</strong> <span id="snippet_text"></span></div></div>
+            <div class="card mb-2"><div class="card-body"><strong>{{ _('nlp_keywords') }}:</strong> <span id="nlp_keywords"></span></div></div>
+            <div class="card mb-2"><div class="card-body"><strong>{{ _('featured_snippets') }}:</strong> <ul id="featured_snippets"></ul></div></div>
+            <div class="card mb-2"><div class="card-body"><strong>{{ _('outline') }}:</strong> <ol id="outline"></ol></div></div>
+        </div>
+    </div>
+</div>
+<script>
+document.getElementById('btnAnalyze').onclick=async()=>{
+  const kw=document.getElementById('keyword').value.trim();
+  if(!kw){alert('أدخل كلمة مفتاحية');return;}
+  document.getElementById('loader').classList.remove('d-none');
+  document.getElementById('results').classList.add('d-none');
+  try{
+    const res=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({keyword:kw})});
+    const data=await res.json();
+    if(data.error){alert(data.error);return;}
+    ['suggested_title','meta_description','snippet_text','nlp_keywords'].forEach(f=>document.getElementById(f).textContent=data[f]||'');
+    const ul=document.getElementById('featured_snippets');ul.innerHTML='';
+    data.featured_snippets.forEach(h=>ul.insertAdjacentHTML('beforeend',`<li>${h}</li>`));
+    const ol=document.getElementById('outline');ol.innerHTML='';
+    data.outline.forEach(h=>ol.insertAdjacentHTML('beforeend',`<li>${h.text}</li>`));
+    document.getElementById('results').classList.remove('d-none');
+  }catch(e){alert('فشل الاتصال: '+e);}
+  finally{document.getElementById('loader').classList.add('d-none');}
+};
+</script>
+{% endblock %}

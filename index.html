@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamar AI Mode - أداة تحليل المنافسين</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --accent: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --info: #3498db;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Loading Spinner */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loader.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 0 4rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            background: linear-gradient(45deg, #fff, #f8f9fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+
+        /* Search Form */
+        .search-container {
+            max-width: 600px;
+            margin: 0 auto 4rem;
+            position: relative;
+        }
+
+        .search-form {
+            display: flex;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            padding: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 1rem 2rem;
+            border: none;
+            background: transparent;
+            color: #fff;
+            font-size: 1.1rem;
+            text-align: right;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .search-btn {
+            padding: 1rem 2rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .search-btn:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 4rem 0;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        /* Results Section */
+        .results {
+            padding: 4rem 0;
+            display: none;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .results-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .results-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .results-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .result-card {
+            background: rgba(255,255,255,0.95);
+            color: var(--dark);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .result-card h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-card .content {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            line-height: 1.6;
+        }
+
+        .result-card .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .keyword-tag {
+            background: var(--info);
+            color: #fff;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(0,0,0,0.2);
+            padding: 3rem 0;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-links a {
+            color: #fff;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero .subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .search-form {
+                flex-direction: column;
+                gap: 1rem;
+                border-radius: 20px;
+            }
+            
+            .search-input {
+                text-align: center;
+            }
+            
+            .search-btn {
+                border-radius: 25px;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <i class="fas fa-robot"></i>
+                Kamar AI Mode
+            </a>
+            <ul class="nav-links">
+                <li><a href="#home">الرئيسية</a></li>
+                <li><a href="#features">المميزات</a></li>
+                <li><a href="#dashboard">لوحة التحكم</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1 data-aos="fade-up">حلّل منافسيك بقوّة الذكاء الاصطناعي</h1>
+            <p class="subtitle" data-aos="fade-up" data-aos-delay="200">
+                أدخل الكلمة المفتاحية واحصل على العناوين، الوصف، الروابط المتصدرة ومخطط المقال جاهزاً للنشر
+            </p>
+            
+            <div class="search-container" data-aos="fade-up" data-aos-delay="400">
+                <form class="search-form" id="searchForm">
+                    <input type="text" class="search-input" id="keywordInput" placeholder="أدخل الكلمة المفتاحية..." required>
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                        حلّل
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="features-container">
+            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 1rem;" data-aos="fade-up">
+                مميزات我们的 الأداة
+            </h2>
+            <p style="text-align: center; opacity: 0.8; font-size: 1.1rem;" data-aos="fade-up" data-aos-delay="200">
+                استكشف قوة الذكاء الاصطناعي في تحليل المنافسين
+            </p>
+            
+            <div class="features-grid">
+                <div class="feature-card" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="feature-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3>عناوين مذهلة</h3>
+                    <p>احصل على عناوين جذابة تجذب الانتباه وتزيد من نسبة النقر</p>
+                </div>
+                
+                <div class="feature-card" data-aos="zoom-in" data-aos-delay="400">
+                    <div class="feature-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3>أوصاف احترافية</h3>
+                    <p>أنشئ أوصافًا تعريفية محسّنة لمحركات البحث</p>
+                </div>
+                
+                <div class="feature-card" data-aos="zoom-in" data-aos-delay="500">
+                    <div class="feature-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3>كلمات مفتاحية</h3>
+                    <p>استخرج الكلمات المفتاحية الأكثر فعالية لمحتواك</p>
+                </div>
+                
+                <div class="feature-card" data-aos="zoom-in" data-aos-delay="600">
+                    <div class="feature-icon">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <h3>مخطط مقال</h3>
+                    <p>احصل على هيكل مقال متكامل وجاهز للنشر</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results" id="results">
+        <div class="results-container">
+            <div class="results-header">
+                <h2 data-aos="fade-up">نتائج التحليل</h2>
+                <p data-aos="fade-up" data-aos-delay="200">تم تحليل الكلمة المفتاحية بنجاح</p>
+            </div>
+            
+            <div class="results-grid" id="resultsGrid">
+                <!-- Results will be inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook"></i></a>
+                <a href="#"><i class="fab fa-twitter"></i></a>
+                <a href="#"><i class="fab fa-linkedin"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+            </div>
+            <p>&copy; 2024 Kamar AI Mode. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+
+        // Form submission
+        document.getElementById('searchForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const keyword = document.getElementById('keywordInput').value;
+            if (!keyword) {
+                alert('الرجاء إدخال كلمة مفتاحية');
+                return;
+            }
+            
+            // Show loader
+            document.getElementById('loader').classList.add('active');
+            
+            // API call
+            fetch('https://api.openwebninja.com/google-ai-mode/ai-mode', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': 'ak_is7pbn7gl4g8mbaupwynpkfbr6lm9yfh8iurpdpuk4noou1'
+                },
+                params: {
+                    'prompt': keyword,
+                    'hl': 'ar',
+                    'gl': 'sa'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide loader
+                document.getElementById('loader').classList.remove('active');
+                
+                // Display results
+                displayResults(data);
+                
+                // Show results section
+                document.getElementById('results').classList.add('active');
+                
+                // Scroll to results
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {
+                // Hide loader
+                document.getElementById('loader').classList.remove('active');
+                
+                console.error('Error:', error);
+                alert('حدث خطأ في التحليل. يرجى المحاولة مرة أخرى.');
+            });
+        });
+
+        function displayResults(data) {
+            const resultsGrid = document.getElementById('resultsGrid');
+            
+            resultsGrid.innerHTML = `
+                <div class="result-card" data-aos="fade-up">
+                    <h3><i class="fas fa-heading"></i> العنوان المقترح</h3>
+                    <div class="content">${data.suggested_title || 'غير متوفر'}</div>
+                </div>
+                
+                <div class="result-card" data-aos="fade-up" data-aos-delay="100">
+                    <h3><i class="fas fa-align-left"></i> الوصف التعريفي</h3>
+                    <div class="content">${data.meta_description || 'غير متوفر'}</div>
+                </div>
+                
+                <div class="result-card" data-aos="fade-up" data-aos-delay="200">
+                    <h3><i class="fas fa-quote-right"></i> المقتطف</h3>
+                    <div class="content">${data.snippet_text || 'غير متوفر'}</div>
+                </div>
+                
+                <div class="result-card" data-aos="fade-up" data-aos-delay="300">
+                    <h3><i class="fas fa-tags"></i> الكلمات المفتاحية</h3>
+                    <div class="keywords">
+                        ${(data.nlp_keywords || '').split('،').map(keyword => 
+                            `<span class="keyword-tag">${keyword.trim()}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <div class="result-card" data-aos="fade-up" data-aos-delay="400">
+                    <h3><i class="fas fa-list-ul"></i> مخطط المقال</h3>
+                    <div class="content">
+                        ${(data.outline || []).map(item => 
+                            `<h4>${item.text}</h4>`
+                        ).join('')}
+                    </div>
+                </div>
+                
+                <div class="result-card" data-aos="fade-up" data-aos-delay="500">
+                    <h3><i class="fas fa-link"></i> الروابط المتصدرة</h3>
+                    <div class="content">
+                        ${(data.featured_snippets || []).map(link => 
+                            `<a href="https://${link}" target="_blank">${link}</a><br>`
+                        ).join('')}
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

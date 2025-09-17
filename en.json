@@ -1,0 +1,18 @@
+{
+  "lang":"English",
+  "login":"Login",
+  "register":"Register",
+  "email":"Email",
+  "password":"Password",
+  "keyword":"Keyword",
+  "analyze":"Analyze",
+  "results":"Results",
+  "suggested_title":"Suggested Title",
+  "meta_description":"Meta Description",
+  "snippet":"Snippet",
+  "outline":"Outline",
+  "nlp_keywords":"NLP Keywords",
+  "featured_snippets":"Featured Snippets",
+  "logout":"Logout",
+  "history":"History"
+}
